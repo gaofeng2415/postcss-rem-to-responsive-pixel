@@ -17,10 +17,20 @@ const plugin: PluginCreator<UserDefinedOptions> = (
   return {
     postcssPlugin: 'postcss-my-rem2px-plugin',
     // Rule 节点 hook
-    Rule(rule, helper) {},
+    Rule(rule, helper) {
+      
+    },
     // AtRule 节点 hook
     AtRule(atRule, helper) {},
     Declaration(decl, { Rule }) {
+      if (decl.value.includes('rem')) {
+        decl.value = decl.value.replaceAll(/(\d*\.?\d+)rem/g, (res) => {
+          let num: string | number = res.replaceAll('rem', '')
+          num = Number.parseFloat(num)
+          const newVal = num * (options.rootValue || 16)
+          return newVal === 0 ? '0' : newVal + 'px'
+        })
+      }
       // 你可以在 regex101 进行正则表达式的测试
       // 从而对 decl.value 这个字符串的值进行解析和替换
     }
